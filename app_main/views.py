@@ -31,22 +31,16 @@ class MyTable(tables.Table):
             }
         fields = ()
 
-def csv_to_table(df_csv):
-    list_table : list[dict] = []
-    for index, row in df_csv.iterrows():
-        list_temp : list[tuple] = []
-        for i, v in row.iteritems():
-            list_temp.append(tuple([i,v]))
-        dict_temp = dict(list_temp)
-        list_table.append(dict_temp)
-    return list_table
-
 def get_table(order, type):
     df = pd.read_csv('data/tmp.csv')
     print("type" , type)
     if type:
         df = df.query(f"type.str.match('{type}')")
-    table = MyTable(csv_to_table(df), order_by=order)
+    dfs = []
+    for i in range(10000):
+        dfs.append(df)
+    df = pd.concat(dfs)
+    table = MyTable(df.to_dict('records'), order_by=order)
     return table
 
 class FilterForm(forms.Form):
@@ -70,5 +64,6 @@ class TableRenderView(View):
             form = FilterForm(initial=request.GET)
 
         table = get_table(order, type)
+        table = RequestConfig(request, paginate={"per_page": 100}).configure(table)
         return render(request, "page1.html", context={'form': form, 'table': table })
 

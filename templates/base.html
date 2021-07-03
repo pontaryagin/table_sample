@@ -1,0 +1,62 @@
+<!doctype html>
+{% load static %}
+<html lang="ja" class='h-100'>
+  
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1 minimum-scale=1.0,maximum-scale=1.0, shrink-to-fit=no">
+  <title>{% block title %}{% endblock %}</title>
+  <meta name="apple-mobile-web-app-capable" content="no">
+  <meta name="theme-color" content="#1e262f">
+  {% load static %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
+  <style>
+    .navbar-brand {
+      /* margin: 20px; */
+      font-family: "Quicksand", sans-serif;
+    }
+
+    .navbar-brand span {
+      display: block;
+      font-size: 2rem;
+      line-height: 2rem;
+      letter-spacing: -0.15rem;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <span>Table Sample</span> 
+        </a>
+        <button class="navbar-toggler"type="button" data-bs-toggle="collapse" data-bs-target="#navbarContents" aria-controls="navbarContents" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContents">
+          <ul class="navbar-nav me-auto mb-2 mb-md-0">
+            <li class="nav-item">
+              <a class="nav-link" href='/page1'>Page1</a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </nav>
+  </header>
+  
+  {% block content %}
+  {% endblock %}
+  {% block extra_js %}{% endblock %}
+  {% block footer %}
+  {% endblock %}
+</body>
+
+</html>

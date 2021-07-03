@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "table"
+version = "0.1.0"
+description = ""
+authors = ["pontaryagin <ponta1496@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9.2"
+django = "^3.2.4"
+django_tables2 = "^2.4.0"
+django_ajax_tables = "^1.1.1"
+pandas = "1.2.5"
+django-filter = "^2.4.0"
+django-bootstrap5 = "^2.0.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

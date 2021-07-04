@@ -1,4 +1,4 @@
-from django.http.response import Http404
+from django.http.response import FileResponse, Http404
 from django_tables2 import tables, Column, TemplateColumn, SingleTableView, LazyPaginator, RequestConfig
 import pandas as pd
 from django.http import HttpResponse, Http404
@@ -66,4 +66,11 @@ class TableRenderView(View):
         table = get_table(order, type)
         table = RequestConfig(request, paginate={"per_page": 100}).configure(table)
         return render(request, "page1.html", context={'form': form, 'table': table })
+
+class DowloadView(View):
+    def get(self, request, *args, **kwargs):
+        path = kwargs.get("path")
+        print(path)
+        response = FileResponse(open(f'data/{path}', 'rb'))
+        return response
 

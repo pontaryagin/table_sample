@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.urls.conf import re_path
 from django.views.generic import TemplateView
 from .views import *
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='top.html'), name='top'),
     path('page1', TableRenderView.as_view(), name='page2'),
+    re_path('^download/(?P<path>.*)$', DowloadView.as_view(), name='download'),
 ]

@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.views.generic import View
 from django import forms
 import re
+import io
 
 class MyTable(tables.Table):
     name = Column(
@@ -31,15 +32,20 @@ class MyTable(tables.Table):
             }
         fields = ()
 
-def get_table(order, type):
+def get_df(type):
     df = pd.read_csv('data/tmp.csv')
     print("type" , type)
-    if type:
-        df = df.query(f"type.str.match('{type}')")
     dfs = []
     for i in range(10000):
         dfs.append(df)
     df = pd.concat(dfs)
+    if type:
+        df = df.query(f"type.str.match('{type}')")
+    return df
+
+
+def get_table(order, type):
+    df = get_df(type)
     table = MyTable(df.to_dict('records'), order_by=order)
     return table
 
@@ -70,7 +76,10 @@ class TableRenderView(View):
 class DowloadView(View):
     def get(self, request, *args, **kwargs):
         path = kwargs.get("path")
-        print(path)
-        response = FileResponse(open(f'data/{path}', 'rb'))
+        buf = io.BytesIO()
+        df = get_df(None)
+        df.to_csv(buf)
+        buf.seek(0)
+        response = FileResponse(buf)
         return response
 

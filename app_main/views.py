@@ -9,6 +9,9 @@ from django.views.generic import View
 from django import forms
 import re
 import io
+import os
+from app_main.settings import BASE_DIR
+from pathlib import Path
 
 class MyTable(tables.Table):
     name = Column(
@@ -32,8 +35,8 @@ class MyTable(tables.Table):
             }
         fields = ()
 
-def get_df(type):
-    df = pd.read_csv('data/tmp.csv')
+def get_df(type, name):
+    df = pd.read_csv(f'data/{name}.csv')
     print("type" , type)
     dfs = []
     for i in range(10000):
@@ -44,8 +47,8 @@ def get_df(type):
     return df
 
 
-def get_table(order, type):
-    df = get_df(type)
+def get_table(order, type,name):
+    df = get_df(type,name)
     table = MyTable(df.to_dict('records'), order_by=order)
     return table
 
@@ -58,6 +61,7 @@ class FilterForm(forms.Form):
 
 class TableRenderView(View):
     def get(self, request, *args, **kwargs):
+        name = request.GET.get("name")
         type = request.GET.get("type")
         order = request.GET.get("sort")
         try:
@@ -69,7 +73,7 @@ class TableRenderView(View):
         else:
             form = FilterForm(initial=request.GET)
 
-        table = get_table(order, type)
+        table = get_table(order, type, name)
         table = RequestConfig(request, paginate={"per_page": 100}).configure(table)
         return render(request, "page1.html", context={'form': form, 'table': table })
 
@@ -82,4 +86,13 @@ class DowloadView(View):
         buf.seek(0)
         response = FileResponse(buf)
         return response
+
+class CategoryRenderView(View):
+    def get(self, request, *args, **kwargs):
+        pages:list = []
+        for file in (BASE_DIR / "data").iterdir():
+            name = file.stem
+            pages.append({"name": name, "url": f"/page1/?name={name}"})
+        return render(request, "category.html", context={'pages': pages })
+
 

@@ -22,6 +22,7 @@ from .views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='top.html'), name='top'),
-    path('page1', TableRenderView.as_view(), name='page2'),
+    path('page1/', TableRenderView.as_view(), name='page2'),
+    path('categories/', CategoryRenderView.as_view(), name='categories'),
     re_path('^download/(?P<path>.*)$', DowloadView.as_view(), name='download'),
 ]

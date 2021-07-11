@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% load render_table from django_tables2 %}
+{% block content %}
+<main class="container" style="padding-top:4.5rem;padding-bottom:2rem;">
+  <h2>Categories</h2>
+  {% for page in pages %}
+    <a href="{{ page.url }}">{{ page.name }}</a>
+  {% endfor %}
+</main>
+{% endblock %}

@@ -12,6 +12,7 @@ django_ajax_tables = "^1.1.1"
 pandas = "1.2.5"
 django-filter = "^2.4.0"
 django-bootstrap5 = "^2.0.1"
+daphne = "^3.0.2"
 
 [tool.poetry.dev-dependencies]
 

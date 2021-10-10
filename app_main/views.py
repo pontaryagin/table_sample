@@ -1,3 +1,4 @@
+from typing import *
 from django.http.response import FileResponse, Http404
 from django_tables2 import tables, Column, TemplateColumn, SingleTableView, LazyPaginator, RequestConfig
 import pandas as pd
@@ -12,6 +13,8 @@ import io
 import os
 from app_main.settings import BASE_DIR
 from pathlib import Path
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 class MyTable(tables.Table):
     name = Column(
@@ -87,12 +90,25 @@ class DowloadView(View):
         response = FileResponse(buf)
         return response
 
+T = TypeVar('T') 
+def get_page_object(objs: List[T], each_page_num: int, page_num: int):
+    # get pagination
+    paginator = Paginator(objs, each_page_num)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    return page_obj
+
 class CategoryRenderView(View):
     def get(self, request, *args, **kwargs):
-        pages:list = []
+        items:list = []
+        page_num = request.GET.get('page')
         for file in (BASE_DIR / "data").iterdir():
             name = file.stem
-            pages.append({"name": name, "url": f"/page1/?name={name}"})
-        return render(request, "category.html", context={'pages': pages })
-
+            items.append({"name": name, "url": f"/page1/?name={name}"})
+        page_obj = get_page_object(items, 3, page_num)
+        return render(request, "category.html", context={'items': page_obj.object_list, 'page_obj': page_obj })
 

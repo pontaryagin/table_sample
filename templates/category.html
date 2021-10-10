@@ -5,9 +5,10 @@
 <main class="container" style="padding-top:4.5rem;padding-bottom:2rem;">
   <h2>Categories</h2>
   <div class="list-group">
-    {% for page in pages %}
+    {% for page in items %}
       <a href="{{ page.url }}" class="list-group-item list-group-item-action">{{ page.name }}</a>
     {% endfor %}
   </div>
+  {% include 'paginate.html' with page_obj=page_obj only %}
 </main>
 {% endblock %}

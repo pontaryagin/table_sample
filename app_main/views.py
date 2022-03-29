@@ -14,9 +14,10 @@ import os
 from app_main.settings import BASE_DIR
 from pathlib import Path
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+import time
 
 class MyTable(tables.Table):
+    count = 0
     name = Column(
         verbose_name="Col1",
     )
@@ -31,7 +32,10 @@ class MyTable(tables.Table):
     )
 
     def render_value(self, value):
-        return "{:,.2f}".format(value)
+        # time.sleep(10/100)
+        self.count += 1
+        print(self.count)
+        return f"count={self.count};"+"{:,.2f}".format(value)
     class Meta:
         attrs = {
             'class': 'table  table-striped table-bordered  table-sm'
@@ -42,7 +46,7 @@ def get_df(type, name):
     df = pd.read_csv(f'data/{name}.csv')
     print("type" , type)
     dfs = []
-    for i in range(10000):
+    for i in range(1000):
         dfs.append(df)
     df = pd.concat(dfs)
     if type:
@@ -52,43 +56,20 @@ def get_df(type, name):
 
 def get_table(order, type,name):
     df = get_df(type,name)
-    table = MyTable(df.to_dict('records'), order_by=order)
-    return table
+    print("df obtained")
+    # mod below
+    # table = MyTable(df.to_dict('records'), order_by=order)
+    # return table
+    if order is not None:
+        df.sort_values(order, inplace=True)
+    return df.to_dict('records')
 
 class FilterForm(forms.Form):
     name = forms.CharField(label='Name', required=False)
     type = forms.CharField(label='Type', required=False)
     class Meta:
         fields = ('name', 'type',)
-        
 
-class TableRenderView(View):
-    def get(self, request, *args, **kwargs):
-        name = request.GET.get("name")
-        type = request.GET.get("type")
-        order = request.GET.get("sort")
-        try:
-            type_pat = re.compile(type) if type else None
-        except:
-            form = FilterForm(request.GET)
-            type = None
-            form.add_error("type", "正規表現である必要があります。")
-        else:
-            form = FilterForm(initial=request.GET)
-
-        table = get_table(order, type, name)
-        table = RequestConfig(request, paginate={"per_page": 100}).configure(table)
-        return render(request, "page1.html", context={'form': form, 'table': table })
-
-class DowloadView(View):
-    def get(self, request, *args, **kwargs):
-        path = kwargs.get("path")
-        buf = io.BytesIO()
-        df = get_df(None)
-        df.to_csv(buf)
-        buf.seek(0)
-        response = FileResponse(buf)
-        return response
 
 T = TypeVar('T') 
 def get_page_object(objs: List[T], each_page_num: int, page_num: int):
@@ -101,6 +82,50 @@ def get_page_object(objs: List[T], each_page_num: int, page_num: int):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
     return page_obj
+
+class TableRenderView(View):
+    def get(self, request, *args, **kwargs):
+        name = request.GET.get("name")
+        type = request.GET.get("type")
+        order = request.GET.get("sort")
+        page_num = request.GET.get("page")
+        try:
+            type_pat = re.compile(type) if type else None
+        except:
+            form = FilterForm(request.GET)
+            type = None
+            form.add_error("type", "正規表現である必要があります。")
+        else:
+            form = FilterForm(initial=request.GET)
+
+        # mod here
+        # table = get_table(order, type, name)
+        # print("get_table end")
+        # table = RequestConfig(request, paginate={"per_page": 10}).configure(table)
+        # print("RequestConfig end")
+        # o = render(request, "page1.html", context={'form': form, 'table': table })
+        # print("render end")
+        # return o
+
+        table_records = get_table(order, type, name)
+        print("get_table end")
+        page_obj = get_page_object(table_records, 10, page_num)
+        print("get_page_object end")
+        table = MyTable(page_obj, order)
+        print("MyTable end")
+        # table = RequestConfig(request, paginate={"per_page": 100}).configure(table)
+        return render(request, "page1.html", 
+            context={'form': form, 'table': table, 'items': page_obj.object_list, 'page_obj': page_obj  })
+
+class DowloadView(View):
+    def get(self, request, *args, **kwargs):
+        path = kwargs.get("path")
+        buf = io.BytesIO()
+        df = get_df(None)
+        df.to_csv(buf)
+        buf.seek(0)
+        response = FileResponse(buf)
+        return response
 
 class CategoryRenderView(View):
     def get(self, request, *args, **kwargs):
